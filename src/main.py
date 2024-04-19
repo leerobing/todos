@@ -22,12 +22,13 @@ todo_data = {
         "id" : 3,
         "contents": "실전! FastAPi 챕터 0 수강",
         "is_done": False
+    },
+    4: {
+        "id" : 4,
+        "contents": "실전! FastAPi 챕터 0 수강",
+        "is_done": True
     }
 }
-#
-# @app.get("/todos")
-# def get_todos_handler():
-#     return list(todo_data.values())
 
 
 @app.get("/todos")
