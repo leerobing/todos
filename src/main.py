@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from database.connection import get_db
 from database.orm import Todo
 from database.repository import get_todos
+from schema.response import TodoSchema, ListTodoResponse
 
 app = FastAPI()
 
@@ -41,13 +42,17 @@ todo_data = {
 def get_todos_handler(
     order: str | None = None,
     session: Session = Depends(get_db),
-): # 쿼리 파라미터를 order 혹은 받지 않게 설정
+) -> ListTodoResponse: # 쿼리 파라미터를 order 혹은 받지 않게 설정
 
     todos: List[Todo] = get_todos(session=session)
-    ret = list(todo_data.values())
+
     if order and order == 'DESC': # if 문에서 해당 객체에 값이 존재하면 true임
-        return todos[::-1] # ::-1 은 해당 리스트를 역정렬함
-    return todos
+         return ListTodoResponse(
+            todos=[TodoSchema.from_orm(todo) for todo in todos[::-1]]  # ::-1 은 해당 리스트를 역정렬함
+    )
+    return ListTodoResponse(
+        todos=[TodoSchema.from_orm(todo) for todo in todos]
+    )
 
 class CreateTodo(BaseModel) :
     id : int
