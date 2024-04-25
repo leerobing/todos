@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.orm import Todo
-from database.repository import get_todos
+from database.repository import get_todos, get_todo_by_todo_id
+from schema.request import CreateTodoRequest
 from schema.response import TodoSchema, ListTodoResponse
 
 app = FastAPI()
@@ -54,21 +55,19 @@ def get_todos_handler(
         todos=[TodoSchema.from_orm(todo) for todo in todos]
     )
 
-class CreateTodo(BaseModel) :
-    id : int
-    contents : str
-    is_done : bool
-
 @app.get("/todos/{todos_id}", status_code=200)
-def get_todo_handler(todos_id : int):
+def get_todo_handler(
+        todos_id : int,
+        session: Session = Depends(get_db),
+) -> TodoSchema | None:
+   todo: Todo | None = get_todo_by_todo_id(session=session,todo_id=todos_id)
 
-    todo = todo_data.get(todos_id)
-    if todo:
-        return todo
-    raise HTTPException(status_code=404,detail="Todo not found")
+   if todo:
+        return TodoSchema.from_orm(todo)
+   raise HTTPException(status_code=404,detail="Todo not found")
 
 @app.post("/todos", status_code=201)
-def post_todo_hanlder(request: CreateTodo):
+def post_todo_hanlder(request: CreateTodoRequest):
     todo_data[request.id] = request.dict()
     return todo_data[request.id]
 
