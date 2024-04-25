@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.orm import Todo
-from database.repository import get_todos, get_todo_by_todo_id, create_todo
+from database.repository import get_todos, get_todo_by_todo_id, create_todo, update_todo
 from schema.request import CreateTodoRequest
 from schema.response import TodoSchema, TodoListSchema
 
@@ -80,10 +80,18 @@ def update_todo_handler(
         todos_id : int,
         is_done : bool = Body(...,embed=True),
         session: Session = Depends(get_db)
-):
+) -> TodoSchema:
     todo: Todo | None = get_todo_by_todo_id(session=session, todo_id=todos_id)
     if todo:
-        return TodoSchema.from_orm(todo)
+        if is_done is True:
+            todo.done()
+            todo: Todo = update_todo(session=session,todo=todo)
+            return TodoSchema.from_orm(todo)
+        else:
+            todo.undone()
+            todo: Todo = update_todo(session=session, todo=todo)
+            return TodoSchema.from_orm(todo)
+
     raise HTTPException(status_code=404, detail="Todo not found")
 
 @app.delete("/todos/{todos_id}", status_code=204)

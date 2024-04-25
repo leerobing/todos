@@ -15,3 +15,8 @@ def create_todo(session : Session, todo : Todo) -> Todo:
     session.commit() # 이시점에서 db에 반영된다.
     session.refresh(instance=todo) #pk id 값이 할당된 todo 객체를 read 한다.
     return todo
+def update_todo(session : Session, todo : Todo) -> Todo:
+    session.add(instance=todo)
+    session.commit()
+    session.refresh(instance=todo)
+    return todo
