@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.orm import Todo
-from database.repository import get_todos, get_todo_by_todo_id, create_todo, update_todo
+from database.repository import get_todos, get_todo_by_todo_id, create_todo, update_todo, delete_todo
 from schema.request import CreateTodoRequest
 from schema.response import TodoSchema, TodoListSchema
 
@@ -16,29 +16,6 @@ app = FastAPI()
 def health_check_handler():
     return {"ping":"pong"}
 
-
-todo_data = {
-    1 : {
-        "id" : 1,
-        "contents": "실전! FastAPi 챕터 0 수강",
-        "is_done": True
-    },
-    2 : {
-        "id" : 2,
-        "contents": "실전! FastAPi 챕터 0 수강",
-        "is_done": False
-    },
-    3: {
-        "id" : 3,
-        "contents": "실전! FastAPi 챕터 0 수강",
-        "is_done": False
-    },
-    4: {
-        "id" : 4,
-        "contents": "실전! FastAPi 챕터 0 수강",
-        "is_done": True
-    }
-}
 @app.get("/todos")
 def get_todos_handler(
     order: str | None = None,
@@ -55,12 +32,12 @@ def get_todos_handler(
         todos=[TodoSchema.from_orm(todo) for todo in todos]
     )
 
-@app.get("/todos/{todos_id}", status_code=200)
+@app.get("/todos/{todo_id}", status_code=200)
 def get_todo_handler(
-        todos_id : int,
+        todo_id : int,
         session: Session = Depends(get_db)
 ) -> TodoSchema | None:
-   todo: Todo | None = get_todo_by_todo_id(session=session,todo_id=todos_id)
+   todo: Todo | None = get_todo_by_todo_id(session=session,todo_id=todo_id)
 
    if todo:
         return TodoSchema.from_orm(todo)
@@ -75,17 +52,17 @@ def post_todo_hanlder(
     todo: Todo = create_todo(session=session, todo=todo)
     return TodoSchema.from_orm(todo)
 
-@app.patch("/todos/{todos_id}")
+@app.patch("/todos/{todo_id}")
 def update_todo_handler(
-        todos_id : int,
-        is_done : bool = Body(...,embed=True),
+        todo_id: int,
+        is_done: bool = Body(...,embed=True),
         session: Session = Depends(get_db)
 ) -> TodoSchema:
-    todo: Todo | None = get_todo_by_todo_id(session=session, todo_id=todos_id)
+    todo: Todo | None = get_todo_by_todo_id(session=session, todo_id=todo_id)
     if todo:
         if is_done is True:
             todo.done()
-            todo: Todo = update_todo(session=session,todo=todo)
+            todo: Todo = update_todo(session=session, todo=todo)
             return TodoSchema.from_orm(todo)
         else:
             todo.undone()
@@ -94,12 +71,13 @@ def update_todo_handler(
 
     raise HTTPException(status_code=404, detail="Todo not found")
 
-@app.delete("/todos/{todos_id}", status_code=204)
-def delete_todo_handler(todos_id: int):
-    todo = todo_data.get(todos_id)
+@app.delete("/todos/{todo_id}", status_code=204)
+def delete_todo_handler(
+        todo_id: int,
+        session: Session = Depends(get_db)):
+    todo: Todo| None = get_todo_by_todo_id(session=session, todo_id=todo_id)
     if todo:
-        todo_data.pop(todos_id, None)
-        return
+        delete_todo(session=session,todo_id=todo_id)
     raise HTTPException(status_code=404, detail="Todo not found")
 
 
