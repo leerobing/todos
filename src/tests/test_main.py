@@ -1,18 +1,12 @@
-from fastapi.testclient import TestClient
-
 from database.orm import Todo
-from main import app
 
-
-client = TestClient(app=app)
-
-def test_health_check():
+def test_health_check(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"ping":"pong"}
 
 
-def test_get_todos(mocker):
+def test_get_todos(client,mocker): #pytestFixture 적용
     mocker.patch("main.get_todos", return_value=[
         Todo(id=1, contents="FastAPI Section 0",is_done=False),
         Todo(id=2, contents="FastAPI Section 1", is_done=True),
@@ -35,3 +29,25 @@ def test_get_todos(mocker):
         {"id": 1, "contents": "FastAPI Section 0", "is_done": False}
 
     ]}
+
+def test_get_todo_by_todo_id(client,mocker):
+
+    #200
+    mocker.patch(
+        "main.get_todo_by_todo_id",
+        return_value=Todo(id=1, contents="FastAPI Section 0",is_done=False))
+
+    response = client.get("/todos/1")
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": 1, "contents": "FastAPI Section 0","is_done": False
+    }
+
+    #404
+    mocker.patch(
+        "main.get_todo_by_todo_id", return_value=None)
+    response = client.get("/todos/1")
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Todo not found"
+    }
