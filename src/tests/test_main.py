@@ -51,3 +51,27 @@ def test_get_todo_by_todo_id(client,mocker):
     assert response.json() == {
         "detail": "Todo not found"
     }
+
+def test_post_todo(client,mocker):
+    mocker.patch(
+        "main.create_todo",
+        return_value=Todo(id=1, contents="todo", is_done=True))
+
+    # Todo 클래스의 create 메서드를 spy한다. mocking을 사용하다 보면 요청 값과 검증 대상 로직의 결과값이 다를 수 있다.
+    #  그럴땐 요청 값을 잘 처리하는지 확인이 필요한데 이때 사용하는 것이 spy다.
+
+    create_spy = mocker.spy(Todo, "create")
+    body = {"contents": "test","is_done":True}
+    response = client.post("/todos",json=body)
+
+    assert create_spy.spy_return.id is None #spy_return 이라는 속성을 통해 해당 request를 잘 처리했는지 확인할 수 있다.
+    assert create_spy.spy_return.contents == "test"
+    assert create_spy.spy_return.is_done is True
+
+    assert response.status_code == 201
+    assert response.json() == {
+        "id": 1,
+        "contents": "todo",
+        "is_done": True
+    }
+
