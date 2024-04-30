@@ -5,7 +5,6 @@ def test_health_check(client):
     assert response.status_code == 200
     assert response.json() == {"ping":"pong"}
 
-
 def test_get_todos(client,mocker): #pytestFixture 적용
     mocker.patch("main.get_todos", return_value=[
         Todo(id=1, contents="FastAPI Section 0",is_done=False),
@@ -64,7 +63,7 @@ def test_post_todo(client,mocker):
     body = {"contents": "test","is_done":True}
     response = client.post("/todos",json=body)
 
-    assert create_spy.spy_return.id is None #spy_return 이라는 속성을 통해 해당 request를 잘 처리했는지 확인할 수 있다.
+    assert create_spy.spy_return.id is None # spy_return 이라는 속성을 통해 해당 request를 잘 처리 했는지 확인할 수 있다.
     assert create_spy.spy_return.contents == "test"
     assert create_spy.spy_return.is_done is True
 
@@ -74,19 +73,21 @@ def test_post_todo(client,mocker):
         "contents": "todo",
         "is_done": True
     }
-def test_patch_todo(client,mocker):
+def test_patch_todo(client, mocker):
 
     #200
     mocker.patch(
         "main.get_todo_by_todo_id",
         return_value=Todo(id=1, contents="todo",is_done=False)
     )
+    done = mocker.patch.object(Todo, "done")
     mocker.patch(
         "main.update_todo",
         return_value=Todo(id=1, contents="todo",is_done=True)
     )
 
     response = client.patch("/todos/1", json={"is_done":True})
+    done.assert_called_once_with()
     assert response.status_code == 200
     assert response.json() == {
         "id": 1,
@@ -105,4 +106,28 @@ def test_patch_todo(client,mocker):
         "detail": "Todo not found"
     }
 
+# def test_delete_todo_success(client, mocker):
+#     # 200
+#     mocker.patch(
+#         "main.get_todo_by_todo_id",
+#         return_value=Todo(id=1, contents="FastAPI Section 0", is_done=False))
+#
+#     # Performing the DELETE request
+#     response = client.delete("/todos/1")
+#
+#     # Assertions
+#     assert response.status_code == 204
+#     assert response.text == ""
+#
+#     # mocker.patch(
+#     #     "main.get_todo_by_todo_id", return_value=None)
+#     # response = client.delete("/todos/1")
+#     # assert response.status_code == 404
+#     # assert response.json() == {
+#     #     "detail": "Todo not found"
+#     # }
+#     #
+#
+#
+#
 
