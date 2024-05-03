@@ -1,8 +1,8 @@
 from sqlalchemy import Boolean,Column,Integer,String
 from sqlalchemy.orm import declarative_base
-
 from schema.request import CreateTodoRequest
 
+# declarative_base()는 상속 클래스들을 자동으로 인지하고 알아서 매핑해준다. sessionmaker()와 마찬가지로 "클래스"를 리턴해주게 됨.
 Base = declarative_base()
 
 class Todo(Base):
@@ -28,4 +28,8 @@ class Todo(Base):
 
     def undone(self) -> "Todo":
         self.is_done = False
+        return self
+
+    def updateContents(self,contents: str) -> "Todo":
+        self.contents = contents
         return self

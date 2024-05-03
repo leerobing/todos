@@ -9,7 +9,7 @@ class TodoSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        orm_mode = True
+        #orm_mode = True
 
 class TodoListSchema(BaseModel):
     todos: List[TodoSchema]
