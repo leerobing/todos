@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean,Column,Integer,String,ForeignKey
-from sqlalchemy.orm import declarative_base
-from schema.request import CreateTodoRequest
+from sqlalchemy.orm import declarative_base,relationship
+from schema.request import CreateTodoRequest, SignUpRequest
+import bcrypt
 
 # declarative_base()는 상속 클래스들을 자동으로 인지하고 알아서 매핑해준다. sessionmaker()와 마찬가지로 "클래스"를 리턴해주게 됨.
 Base = declarative_base()
@@ -40,3 +41,11 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(256), nullable=False)
     password = Column(String(256), nullable=False)
+    todos = relationship("Todo", lazy="joined")
+    @classmethod
+    def create(cls, username : str, hashed_password : str) -> "User":
+        return cls(
+            username=username,
+            password=hashed_password
+        )
+

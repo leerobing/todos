@@ -13,3 +13,11 @@ class TodoSchema(BaseModel):
 
 class TodoListSchema(BaseModel):
     todos: List[TodoSchema]
+
+
+class UserSchema(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True

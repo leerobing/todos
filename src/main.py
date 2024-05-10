@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from api import todo
+from api import todo, user
 
 app = FastAPI() #app은 FastAPI의 인스턴스를 참조하는 변수
 app.include_router(todo.router)# app에 router를 연결해준다.
+app.include_router(user.router)
 
 @app.get("/")
 def health_check_handler():
