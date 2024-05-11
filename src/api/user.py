@@ -1,10 +1,11 @@
+from typing import List
 
 from fastapi import APIRouter,Depends
 
 from database.orm import User
 from database.repository import UserRepository
 from schema.request import SignUpRequest
-from schema.response import UserSchema
+from schema.response import UserSchema, UserListSchema
 from service.user import UserService
 
 router = APIRouter(prefix="/users")
@@ -20,3 +21,9 @@ def user_sign_up_handler(
     create_user = user_repo.create_user(user)
     return UserSchema.from_orm(create_user)
 
+@router.get("/test",status_code=200)
+def get_users_handler(user_repo: UserRepository = Depends(UserRepository)) -> UserListSchema:
+    users: List[User] = user_repo.get_users()
+    return UserListSchema(
+        users=[UserSchema.from_orm(user) for user in users]
+    )

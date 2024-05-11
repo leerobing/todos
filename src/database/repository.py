@@ -42,3 +42,7 @@ class UserRepository:
         self.session.commit()
         self.session.refresh(instance=user)
         return user
+
+    def get_users(self) -> List[User]:
+        return list(self.session.scalars(select(User)).unique())
+

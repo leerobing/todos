@@ -10,3 +10,4 @@ def test_user_sign_up_api(client,mocker):
     response = client.post("/users/sign-up", json=body)
 
     assert response.status_code == 201
+

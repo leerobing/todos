@@ -21,3 +21,6 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserListSchema(BaseModel):
+    users: List[UserSchema]
