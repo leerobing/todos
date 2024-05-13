@@ -17,7 +17,7 @@ def user_sign_up_handler(
         user_repo: UserRepository = Depends(UserRepository)) -> UserSchema:
 
     hash_password = user_service.hash_password(plain_password=request.password)
-    user: User = User.create(username=request.username,hashed_password=hash_password)
+    user: User = User.create(username=request.username,password=hash_password)
     create_user = user_repo.create_user(user)
     return UserSchema.from_orm(create_user)
 
