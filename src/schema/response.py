@@ -24,3 +24,6 @@ class UserSchema(BaseModel):
 
 class UserListSchema(BaseModel):
     users: List[UserSchema]
+
+class JwtResponse(BaseModel):
+    access_token: str
