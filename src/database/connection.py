@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 DATABASE_URL = "mysql+pymysql://root:todos@127.0.0.1:3305/todos"
 
 #echo 는 쿼리 동작시 sql 쿼리를 출력해주는 옵션
-engine = create_engine(DATABASE_URL, echo= True)
+engine = create_engine(DATABASE_URL)
 
 #session 객체를 만들기 위한 session factory 객체
 SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -20,3 +20,7 @@ class UserService:
             {"sub" : username,"exp":datetime.now() + timedelta(days=1)},
             self.secret_key,
              algorithm= self.jwt_algorithm)
+    
+    def decode_jwt(self, access_token: str) -> str:
+        payload: dict = jwt.decode(access_token, self.secret_key, algorithms=[self.jwt_algorithm])
+        return payload["sub"]

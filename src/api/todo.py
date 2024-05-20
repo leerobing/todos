@@ -4,20 +4,33 @@ from fastapi import Depends, HTTPException, Body, APIRouter
 from sqlalchemy.orm import Session
 
 from database.connection import get_db
-from database.orm import Todo
-from database.repository import TodoRepository
+from database.orm import Todo, User
+from database.repository import TodoRepository, UserRepository
 from schema.request import CreateTodoRequest
 from schema.response import TodoListSchema, TodoSchema
-
+from security import get_access_token
+from service.user import UserService
 
 router = APIRouter(prefix="/todos") #router를 통해 요청을 받음, prefix는 @RequestMapping 같이 고정 url를 지정할 수 있음
 @router.get("")
 def get_todos_handler(
+    access_token: str = Depends(get_access_token),
+    user_service: UserService = Depends(),
+    user_repo : UserRepository = Depends( ),
     order: str | None = None,
     todo_rpo: TodoRepository = Depends(TodoRepository)
 ) -> TodoListSchema: # 쿼리 파라미터를 order 혹은 받지 않게 설정
 
-    todos: List[Todo] = todo_rpo.get_todos()
+    print("----------------------")
+    print(access_token)
+    print("----------------------")
+    
+    username= user_service.decode_jwt(access_token=access_token)
+    user: User = user_repo.get_user_by_username(username=username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    todos: List[Todo] = user.todos
 
     if order and order == 'DESC': # if 문에서 해당 객체에 값이 존재하면 true임
          return TodoListSchema(
