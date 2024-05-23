@@ -1,6 +1,7 @@
 from datetime import datetime,timedelta
 
 import bcrypt
+import random
 from jose import jwt
 
 class UserService:
@@ -24,3 +25,8 @@ class UserService:
     def decode_jwt(self, access_token: str) -> str:
         payload: dict = jwt.decode(access_token, self.secret_key, algorithms=[self.jwt_algorithm])
         return payload["sub"]
+
+  #  @staticmethod
+    def create_otp(self) -> int:
+        return random.randint(1000,9999)
+
